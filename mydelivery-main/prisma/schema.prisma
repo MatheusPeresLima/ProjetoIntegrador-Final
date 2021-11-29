@@ -1,0 +1,65 @@
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["mongoDb"]
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+model Users {
+  id           String   @id @default(dbgenerated()) @map("_id") @db.ObjectId
+  name         String
+  email        String
+  phone        String?
+  hash         String
+  zip          String
+  street       String
+  number       String
+  neighborhood String
+  city         String
+  state        String
+  admin        Boolean  @default(false)
+  orders       Orders[]
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @default(now())
+}
+
+model Products {
+  id          String   @id @default(dbgenerated()) @map("_id") @db.ObjectId
+  name        String
+  description String
+  price       Float
+  quantity    Int
+  image       String
+  status      Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @default(now())
+}
+
+model Orders {
+  id         String       @id @default(dbgenerated()) @map("_id") @db.ObjectId
+  userId     String       @map("user_id")
+  cod        String
+  payment    Int          @default(1)
+  amount     Float        @default(0)
+  user       Users        @relation(fields: [userId], references: [id])
+  items      OrderItems[]
+  status     Int          @default(0)
+  createdAt  DateTime     @default(now())
+  updatedAt  DateTime     @default(now())
+  productsId String?      @db.ObjectId
+}
+
+model OrderItems {
+  id        String   @id @default(dbgenerated()) @map("_id") @db.ObjectId
+  name      String
+  quantity  Int
+  price     Float
+  image     String
+  orderId   String   @map("order_id")
+  order     Orders   @relation(fields: [orderId], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now())
+}
